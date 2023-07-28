@@ -143,6 +143,11 @@ function love.update(dt)
             ball.dx = math.random(140, 200)
         else
             ball.dx = -math.random(140, 200)
+            --[[
+                AI Controlled Paddle: 
+                    Auto serve if player 2 is serving
+            --]]
+            gameState = 'play'
         end
     elseif gameState == 'play' then
         -- detect ball collision with paddles, reversing dx if true and
@@ -241,13 +246,27 @@ function love.update(dt)
         player1.dy = 0
     end
 
-    -- player 2
+    -- player 2 
     if love.keyboard.isDown('up') then
         player2.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('down') then
         player2.dy = PADDLE_SPEED
     else
-        player2.dy = 0
+        --[[ AI Controlled Paddle: 
+                IF the ball is above the paddle AND the ball is moving towards the paddle, THEN move up
+                IF the ball is below the paddle AND the ball is moving towards the paddle, THEN move down
+                ELSE (equal Y) do nothing\
+
+                NOTE: This method could be more realistic by letting the paddle move up or down before the ball is moving towards it
+                      but that would made the AI Paddle impossible to beat (it was tested)
+        --]]
+        if ball.y < player2.y and ball.dx > 0 then
+            player2.dy = -PADDLE_SPEED
+        elseif ball.y > player2.y and ball.dx > 0 then
+            player2.dy = PADDLE_SPEED
+        else
+            player2.dy = 0
+        end
     end
 
     -- update our ball based on its DX and DY only if we're in play state;
